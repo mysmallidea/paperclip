@@ -59,7 +59,7 @@ module Paperclip
 
       @queued_for_write[:original]        = uploaded_file.to_tempfile
       @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename.strip.gsub /[^\w\d\.\-]+/, '_'
-      @instance[:"#{@name}_content_type"] = uploaded_file.content_type.strip
+      @instance[:"#{@name}_content_type"] = content_type_for(uploaded_file)
       @instance[:"#{@name}_file_size"]    = uploaded_file.size.to_i
 
       @dirty = true
@@ -67,6 +67,13 @@ module Paperclip
       post_process
     ensure
       validate
+    end
+    
+    # If the browser doesn't report a content type (sometimes happens with CSV files), 
+    # then discover the content type from the file name. 
+    def content_type_for(uploaded_file)
+      return uploaded_file.content_type if uploaded_file.content_type
+      return MIME::Types.of(uploaded_file.original_filename).first.content_type
     end
 
     # Returns the public URL of the attachment, with a given style. Note that this
