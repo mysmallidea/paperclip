@@ -128,9 +128,9 @@ module Paperclip
       def to_file style = default_style
         return @queued_for_write[style] if @queued_for_write[style]
         filename = path(style).split(".")
-        extname  = File.extname(filename)
-        basename = File.basename(filename, extname)
-        file = Tempfile.new(basename, extname)
+        extname  = File.extname(path)
+        basename = File.basename(path, extname)
+        file = Tempfile.new([basename, extname])
         file.write(AWS::S3::S3Object.value(path(style), bucket_name))
         file.rewind
         return file
